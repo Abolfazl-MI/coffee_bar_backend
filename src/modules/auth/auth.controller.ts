@@ -9,10 +9,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto } from '../dto/login.dto';
-import { RegisterDto } from '../dto/register.dto';
+import { LoginDto } from '../../dto/login.dto';
+import { RegisterDto } from '../../dto/register.dto';
 import { FileInterceptor, NoFilesInterceptor } from "@nestjs/platform-express";
-import { appStorage, fileSizeLimitation } from '../utils/multer.config';
+import { appStorage, fileSizeLimitation } from '../../utils/multer.config';
 
 @Controller('auth')
 export class AuthController {
