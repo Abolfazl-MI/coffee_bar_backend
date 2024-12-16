@@ -6,9 +6,6 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 
 import { MulterModule } from '@nestjs/platform-express';
-
-import { appStorage } from './utils/multer.config';
-import { LoggerModule } from 'nestjs-pino';
 import { LoggerMiddleware } from './middlwares/logger.middleware';
 import { ShopModule } from './modules/shop/shop.module';
 
