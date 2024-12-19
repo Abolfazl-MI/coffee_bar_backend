@@ -1,9 +1,10 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Mode } from 'fs';
 import { Model } from 'mongoose';
 import { NotFoundError } from 'rxjs';
 import { ShopDto, UpdateShopDto } from 'src/dto/shop/shop.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
 import { ShopAddress } from 'src/schemas/adderess.schema';
 import { CoffeeShop } from 'src/schemas/coffeShop.schema';
 import { ShopTable } from 'src/schemas/shopTable.schema';
@@ -87,5 +88,12 @@ export class ShopService {
       },
       metadata
     }
+  }
+  async getShopInfo(userId:string){
+      const shop=await this.coffeeShopModel.findOne({
+        owner:userId.toString()
+      })
+      if(!shop) throw new NotFoundException('shop not found')
+      return shop
   }
 }

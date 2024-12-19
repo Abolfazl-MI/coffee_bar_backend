@@ -122,4 +122,13 @@ export class ShopController {
     const sanitizedOffset = offset ? Number(offset) : 0; // Default value: 0
     return await this.shopService.getShopTables(userId,sanitizedLimit,sanitizedOffset)
   }
+
+    // get shop info
+    @Get()
+    @UseGuards(AuthGuard,RoleGuard)
+    @Roles(Role.shop_owner)
+    async getShopInfo( @Request() request){
+    const userId=request.user._id.toString()
+      return await this.shopService.getShopInfo(userId)
+    }
 }
