@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
 @Schema({timestamps:true})
-export class ShopAddress {
+export class ShopAddress extends Document {
   @Prop({ required: true })
   street: string;
 
