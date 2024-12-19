@@ -6,6 +6,7 @@ import { NotFoundError } from 'rxjs';
 import { ShopDto, UpdateShopDto } from 'src/dto/shop/shop.dto';
 import { ShopAddress } from 'src/schemas/adderess.schema';
 import { CoffeeShop } from 'src/schemas/coffeShop.schema';
+import { generatePaginationInfo } from 'src/utils/functions';
 
 @Injectable()
 export class ShopService {
@@ -44,5 +45,16 @@ export class ShopService {
     }
     await shop.updateOne(shopData)
     return true
+  }
+  async getAllShops(limit?:number,offset?:number){
+    const shopCounts=await this.coffeeShopModel.countDocuments()
+    const shops=await this.coffeeShopModel.find().limit(limit).skip(offset)
+    const metadata=generatePaginationInfo(shopCounts,limit,offset)
+    return {
+      data:{
+        shops
+      },
+      metadata
+    }
   }
 }
