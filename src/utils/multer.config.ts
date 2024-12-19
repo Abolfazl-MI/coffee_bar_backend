@@ -2,17 +2,15 @@ import { diskStorage } from 'multer';
 import { Error } from 'mongoose';
 import * as path from 'path';
 import * as fs from 'fs';
+import { HttpException, NotFoundException } from '@nestjs/common';
 
 export const fileSizeLimitation: number = 4 * 1024 * 1024;
 export const appStorage = diskStorage({
   destination: (req, file, callback) => {
     const fieldName: string = file.fieldname;
-    const allowdedFieldNames: string[] = ['avatar'];
-    if (!allowdedFieldNames.includes(fieldName)) {
-      const error: Error = new Error(
-        'could not upload file with expected field name',
-      );
-      return callback(error, null);
+    const allowedFieldNames: string[] = ['avatar','logo'];
+    if (!allowedFieldNames.includes(fieldName)) {
+      return callback(new Error('filed not allowed'),null)
     }
     const uploadPath: string = path.join('./uploads', fieldName);
 

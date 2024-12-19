@@ -23,7 +23,11 @@ import { Role } from 'src/schemas/user.schema';
 import { RestrictedField, RestrictedFields } from 'src/types/restricted_fields';
 import { RestrictedFieldGuard } from 'src/guards/fied.guard';
 import { ShopDto, UpdateShopDto } from 'src/dto/shop/shop.dto';
-import { FileFieldsInterceptor, FileInterceptor, NoFilesInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+  NoFilesInterceptor,
+} from '@nestjs/platform-express';
 import { appStorage, fileSizeLimitation } from 'src/utils/multer.config';
 
 @Controller('shop')
@@ -63,9 +67,9 @@ export class ShopController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.admin)
   async getAllShops(
-    @Query('limit',)
+    @Query('limit')
     limit: string,
-    @Query('offset',)
+    @Query('offset')
     offset: string,
   ) {
     const sanitizedLimit = limit ? Number(limit) : 10; // Default value: 10
@@ -73,17 +77,16 @@ export class ShopController {
     return await this.shopService.getAllShops(sanitizedLimit, sanitizedOffset);
   }
 
-  @Put(':id')
+  @Put()
   @UseInterceptors(FileInterceptor('logo', { storage: appStorage }))
   @UseGuards(AuthGuard, RoleGuard, RestrictedFieldGuard)
-  @Roles(Role.admin, Role.shop_owner)
+  @Roles(Role.shop_owner)
   @RestrictedFields(
     RestrictedField.is_active,
     RestrictedField.owner,
     RestrictedField.owner,
   )
   async updateShop(
-    @Param('id') id: string,
     @Body() body: UpdateShopDto,
     @Request() request,
     @UploadedFile(
@@ -93,20 +96,30 @@ export class ShopController {
           new MaxFileSizeValidator({ maxSize: fileSizeLimitation }),
           new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
         ],
-      })
-    ) logo: Express.Multer.File,
+      }),
+    )
+    logo: Express.Multer.File,
   ) {
-    let shop = await this.shopService.updateShopInfo(
+    return await this.shopService.updateShopInfo(
       request.user._id,
-      request.user.role,
-      id,
       body,
+      logo ? logo.path : null,
     );
-    if (shop) {
-      return {
-        message: 'shop updated',
-      };
-    }
-    // return request.user
+  }
+  // get shop tables
+  @Get('/tables')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(Role.shop_owner)
+  async getShopTables(
+    @Request() request,
+    @Query('limit')
+    limit: string,
+    @Query('offset')
+    offset: string,
+  ) {
+    const userId=request.user._id.toString()
+    const sanitizedLimit = limit ? Number(limit) : 10; // Default value: 10
+    const sanitizedOffset = offset ? Number(offset) : 0; // Default value: 0
+    return await this.shopService.getShopTables(userId,sanitizedLimit,sanitizedOffset)
   }
 }

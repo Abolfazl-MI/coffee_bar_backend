@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Mode } from 'fs';
 import { Model } from 'mongoose';
@@ -6,6 +6,7 @@ import { NotFoundError } from 'rxjs';
 import { ShopDto, UpdateShopDto } from 'src/dto/shop/shop.dto';
 import { ShopAddress } from 'src/schemas/adderess.schema';
 import { CoffeeShop } from 'src/schemas/coffeShop.schema';
+import { ShopTable } from 'src/schemas/shopTable.schema';
 import { generatePaginationInfo } from 'src/utils/functions';
 
 @Injectable()
@@ -13,9 +14,11 @@ export class ShopService {
   constructor(
     @InjectModel(CoffeeShop.name) private coffeeShopModel: Model<CoffeeShop>,
     @InjectModel(ShopAddress.name) private shopAddressModel: Model<ShopAddress>,
+    @InjectModel(ShopTable.name) private shopTable: Model<ShopTable>,
   ) {}
   // create coffee shop
   async createCoffeeShop(shopData: ShopDto,logo?:string): Promise<boolean> {
+
     const shopAddress = await this.shopAddressModel.create({
       street: shopData.address.street,
       city: shopData.address.city,
@@ -23,34 +26,41 @@ export class ShopService {
       postalCode: shopData.address.postalCode,
       geoLocation: shopData.address.geoLocation,
     });
+
     const shop = await this.coffeeShopModel.create({
       name: shopData.name,
       address: shopAddress,
       bio: shopData.bio,
       is_active: shopData.is_active,
       owner: shopData.owner,
-      tables: shopData.tables,
       logo:logo
     });
+    let tableData=shopData.tables.map((table)=>({
+      shopId:shop._id.toString(),
+      ...table
+    }))
+    let tableInsert=await this.shopTable.insertMany(tableData)
+    const tableIds = tableInsert.map(table => table._id);
+    await this.coffeeShopModel.findOneAndUpdate(
+      shop._id,
+      {$set:{tables:tableIds}},
+      {new:true}
+    )
     return true;
   }
-  async updateShopInfo(userId:string,role:string,id:string,shopData:UpdateShopDto,logo?:string){
-    const shop=await this.coffeeShopModel.findById(id)
-    const shopOwnerId=shop.owner.toString()
+  async updateShopInfo(userId:string,shopData:UpdateShopDto,logo?:string){
+    const shop=await this.coffeeShopModel.findOne({owner:userId.toString()})
     if(!shop){
-      throw new NotFoundError('shop not found')
+      throw new NotFoundException('You have no shop associated')
     }
-    if(role==='shop_owner'&&shopOwnerId!==userId.toString()){
-      throw new ForbiddenException('you are not allowed to update this shop')
-    }
-    const updateData={
+    const data={
       ...shopData
     }
     if(logo){
-      updateData['logo']=logo
+      data['logo']=logo
     }
-    await shop.updateOne(updateData)
-    return true
+    let result=await shop.updateOne(data)
+    return result
   }
   async getAllShops(limit?:number,offset?:number){
     const shopCounts=await this.coffeeShopModel.countDocuments()
@@ -59,6 +69,21 @@ export class ShopService {
     return {
       data:{
         shops
+      },
+      metadata
+    }
+  }
+  async getShopTables(userId:string,limit?:number,offset?:number){
+    const shop=await this.coffeeShopModel.findOne({owner:userId.toString()})
+    if(!shop){
+      throw new NotFoundException('You have no shop associated')
+    }
+    const tablesCount=await this.shopTable.countDocuments({shopId:shop._id.toString()})
+    const tables=await this.shopTable.find({shopId:shop._id.toString()}).limit(limit).skip(offset)
+    const metadata=generatePaginationInfo(tablesCount,limit,offset)
+    return {
+      data:{
+        tables
       },
       metadata
     }

@@ -1,13 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import {Document} from "mongoose"
+import {Document, Types} from "mongoose"
+import { CoffeeShop } from './coffeShop.schema';
+
 
 export enum TableStatus {
-  'available',
-  'occupied',
-  'reserved',
+  available= 'available',
+  occupied='occupied',
+  reserved= 'reserved',
 }
-@Schema({ timestamps: true })
+@Schema()
 export class ShopTable extends Document{
+  @Prop({required:true,type:Types.ObjectId,ref:'coffeeshops'})
+  shopId:string
   @Prop({ required: true, })
   tableNumber: number;
   @Prop({ required: true })
