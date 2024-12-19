@@ -63,7 +63,7 @@ export class ShopController {
   }
   // admin only
   // get all shops
-  @Get()
+  @Get('all')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.admin)
   async getAllShops(
