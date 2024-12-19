@@ -53,7 +53,7 @@ export class ShopController {
     file: Express.Multer.File,
   ) {
     {
-      let result = await this.shopService.createCoffeeShop(body);
+      let result = await this.shopService.createCoffeeShop(body,file.path);
       if (result) {
         return {
           message: 'shop created',

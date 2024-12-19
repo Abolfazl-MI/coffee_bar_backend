@@ -4,6 +4,8 @@ import {Document} from 'mongoose';
 export class ProductCategory extends Document{
     @Prop({ required: true })
     name: string;
+    @Prop()
+    image:string
     @Prop({default:true})
     is_active:boolean
 }

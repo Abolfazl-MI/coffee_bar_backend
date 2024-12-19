@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { MulterModule } from '@nestjs/platform-express';
 import { LoggerMiddleware } from './middlwares/logger.middleware';
 import { ShopModule } from './modules/shop/shop.module';
+import { ProductModule } from './modules/product/product.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ShopModule } from './modules/shop/shop.module';
     }),
     AuthModule,
     ShopModule,
+    ProductModule
   ],
 })
 export class AppModule implements NestModule {

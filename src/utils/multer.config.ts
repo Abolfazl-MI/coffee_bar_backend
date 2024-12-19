@@ -8,7 +8,7 @@ export const fileSizeLimitation: number = 4 * 1024 * 1024;
 export const appStorage = diskStorage({
   destination: (req, file, callback) => {
     const fieldName: string = file.fieldname;
-    const allowedFieldNames: string[] = ['avatar','logo'];
+    const allowedFieldNames: string[] = ['avatar','logo','image'];
     if (!allowedFieldNames.includes(fieldName)) {
       return callback(new Error('filed not allowed'),null)
     }
