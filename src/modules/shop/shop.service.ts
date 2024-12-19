@@ -34,7 +34,7 @@ export class ShopService {
     });
     return true;
   }
-  async updateShopInfo(userId:string,role:string,id:string,shopData:UpdateShopDto){
+  async updateShopInfo(userId:string,role:string,id:string,shopData:UpdateShopDto,logo?:string){
     const shop=await this.coffeeShopModel.findById(id)
     const shopOwnerId=shop.owner.toString()
     if(!shop){
@@ -43,7 +43,13 @@ export class ShopService {
     if(role==='shop_owner'&&shopOwnerId!==userId.toString()){
       throw new ForbiddenException('you are not allowed to update this shop')
     }
-    await shop.updateOne(shopData)
+    const updateData={
+      ...shopData
+    }
+    if(logo){
+      updateData['logo']=logo
+    }
+    await shop.updateOne(updateData)
     return true
   }
   async getAllShops(limit?:number,offset?:number){

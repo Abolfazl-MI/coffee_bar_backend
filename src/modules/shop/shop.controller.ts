@@ -23,7 +23,7 @@ import { Role } from 'src/schemas/user.schema';
 import { RestrictedField, RestrictedFields } from 'src/types/restricted_fields';
 import { RestrictedFieldGuard } from 'src/guards/fied.guard';
 import { ShopDto, UpdateShopDto } from 'src/dto/shop/shop.dto';
-import { FileInterceptor, NoFilesInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor, FileInterceptor, NoFilesInterceptor } from '@nestjs/platform-express';
 import { appStorage, fileSizeLimitation } from 'src/utils/multer.config';
 
 @Controller('shop')
@@ -74,6 +74,7 @@ export class ShopController {
   }
 
   @Put(':id')
+  @UseInterceptors(FileInterceptor('logo', { storage: appStorage }))
   @UseGuards(AuthGuard, RoleGuard, RestrictedFieldGuard)
   @Roles(Role.admin, Role.shop_owner)
   @RestrictedFields(
@@ -85,6 +86,15 @@ export class ShopController {
     @Param('id') id: string,
     @Body() body: UpdateShopDto,
     @Request() request,
+    @UploadedFile(
+      new ParseFilePipe({
+        fileIsRequired: false,
+        validators: [
+          new MaxFileSizeValidator({ maxSize: fileSizeLimitation }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+        ],
+      })
+    ) logo: Express.Multer.File,
   ) {
     let shop = await this.shopService.updateShopInfo(
       request.user._id,
