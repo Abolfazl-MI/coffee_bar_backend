@@ -25,7 +25,7 @@ import { Roles } from 'src/types/role.decorator';
 import { Role } from 'src/schemas/user.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { appStorage, fileSizeLimitation } from 'src/utils/multer.config';
-import { ProductCategoryDto } from 'src/dto/product/productcategory.dto';
+import { ProductCategoryDto, UpdateProductCategoryDto } from 'src/dto/product/productcategory.dto';
 @Controller('shop/product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
@@ -67,6 +67,28 @@ export class ProductController {
     const sanitizedOffset = offset ? Number(offset) : 0; // Default value: 0
     return await this.productService.getALlCategories(sanitizedLimit, sanitizedOffset);
   }
+  // update category
+
+  @Put('category/:id')
+  @UseInterceptors(FileInterceptor('image', { storage: appStorage }))
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(Role.shop_owner)
+  async updateCategory(
+    @Param('id')id:string,
+    @Body() body: UpdateProductCategoryDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        fileIsRequired: false,
+        validators: [
+          new MaxFileSizeValidator({ maxSize: fileSizeLimitation }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return await this.productService.updateCategory(id, body, file ? file.path : null);
+  }
 
   // update product
   // delete product
@@ -77,5 +99,5 @@ export class ProductController {
   // update product category
   // delete product category
 
-  // get single product category
+
 }

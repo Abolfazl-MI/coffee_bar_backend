@@ -9,4 +9,4 @@ export class ProductCategoryDto {
   is_active: boolean;
 }
 
-export class UpdateProductDto extends PartialType(ProductCategoryDto) {}
+export class UpdateProductCategoryDto extends PartialType(ProductCategoryDto) {}
