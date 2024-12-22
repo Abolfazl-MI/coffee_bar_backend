@@ -10,6 +10,7 @@ export class ProductDto{
     @IsOptional()
     @IsNotEmpty()
     quantity:number
+    @IsOptional()
     @IsNotEmpty()
     @IsBoolean()
     available:boolean
@@ -18,6 +19,8 @@ export class ProductDto{
     @IsNotEmpty()
     @IsMongoId()
     category:string
+   
+    
 }
 export class UpdateProductDto extends PartialType(ProductDto){
     

@@ -9,7 +9,7 @@ export class Product extends Document{
     price:number
     @Prop({default:0})
     quantity:number
-    @Prop({required:true})
+    @Prop({default:true})
     available:boolean
     @Prop()
     image:string
@@ -17,6 +17,8 @@ export class Product extends Document{
     description:string
     @Prop({type:Types.ObjectId,ref:ProductCategory.name,required:true})
     category:Types.ObjectId
+    @Prop({type:Types.ObjectId,ref:'coffeeshops',required:true})
+    shopId:Types.ObjectId
 }
 
 export const ProductSchema=SchemaFactory.createForClass(Product)

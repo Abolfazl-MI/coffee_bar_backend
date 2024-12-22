@@ -3,6 +3,7 @@ import { ShopAddress, ShopAddressSchema } from './adderess.schema';
 import { User } from './user.schema';
 import { ShopTable, ShopTableSchema } from './shopTable.schema';
 import { Document, Types } from 'mongoose';
+import { Product } from './product.schema';
 
 @Schema({ timestamps: true })
 export class CoffeeShop extends Document {
@@ -24,6 +25,12 @@ export class CoffeeShop extends Document {
     default: [],
   })
   tables: Types.ObjectId[];
+  @Prop({
+    type:[Types.ObjectId],
+    ref:Product.name,
+    default:[]
+  })
+  products:Types.ObjectId[]
 }
 
 export const CoffeeShopSchema = SchemaFactory.createForClass(CoffeeShop);
