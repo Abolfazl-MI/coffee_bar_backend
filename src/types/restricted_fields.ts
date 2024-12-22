@@ -4,7 +4,8 @@ import { SetMetadata } from "@nestjs/common/decorators"
 export enum RestrictedField{
     is_active = 'is_active',
     role = 'role',
-    owner='owner'
+    owner='owner',
+    shopId='shopId'
 }
 
 
